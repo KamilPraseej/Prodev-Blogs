@@ -1,5 +1,6 @@
 package com.application.prodevblogs.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,7 +22,8 @@ public class UserProfile {
     private String lastName;
     private String emailId;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Blog> blog;
     @OneToMany(cascade = {CascadeType.REMOVE,CascadeType.REFRESH})
     private List<BlogFiles> blogFiles;

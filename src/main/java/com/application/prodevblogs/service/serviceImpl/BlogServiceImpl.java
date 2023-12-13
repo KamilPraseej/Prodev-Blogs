@@ -10,6 +10,7 @@ import com.application.prodevblogs.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,8 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public Blog createBlog(Blog blog) {
         try{
+            blog.setDate(LocalDate.now());
+            blog.setUserProfile(userProfileRepository.findById(blog.getUserProfile().getUserId()).get());
             return blogRepository.save(blog);
         }catch (Exception e) {
             throw new RuntimeException(e);
@@ -56,7 +59,7 @@ public class BlogServiceImpl implements BlogService {
                 throw new UserProfileNotFoundException("User with ID " + userId + " not found");
             }
         } catch (UserProfileNotFoundException e) {
-            throw new RuntimeException("Error getting blogs by user", e);
+            throw new RuntimeException("User with ID " + userId + " not found",e);
         }
     }
 

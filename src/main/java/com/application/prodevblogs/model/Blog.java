@@ -1,5 +1,6 @@
 package com.application.prodevblogs.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,6 +23,6 @@ public class Blog {
     private String category;
     private String content;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.REFRESH,CascadeType.DETACH})
     private UserProfile userProfile;
 }

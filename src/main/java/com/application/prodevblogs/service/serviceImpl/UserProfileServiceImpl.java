@@ -35,10 +35,19 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public UserProfile getUserProfileById(Long userProfileId) {
-        Optional<UserProfile> userProfileOptional = userRepository.findById(userProfileId);
-        return userProfileOptional.orElse(null);
+    public UserProfile getUserProfileById(Long userProfileId) throws UserProfileNotFoundException {
+        try{
+            Optional<UserProfile> userProfileOptional = userRepository.findById(userProfileId);
+
+            return userProfileOptional.orElseThrow(() ->
+                    new UserProfileNotFoundException("User profile with ID " + userProfileId + " not found")
+            );
+        }catch (UserProfileNotFoundException e) {
+            throw new RuntimeException("User with ID " + userProfileId + " not found",e);
+        }
+
     }
+
 
     @Override
     public List<UserProfile> getAllUserProfiles() {
@@ -80,6 +89,5 @@ public class UserProfileServiceImpl implements UserProfileService {
             throw new RuntimeException("Error deleting user profile", e);
         }
     }
-
 
 }

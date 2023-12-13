@@ -2,6 +2,7 @@ package com.application.prodevblogs.controller;
 
 
 import com.application.prodevblogs.exceptions.BlogNotFoundException;
+import com.application.prodevblogs.exceptions.UserProfileNotFoundException;
 import com.application.prodevblogs.model.Blog;
 import com.application.prodevblogs.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +50,17 @@ public class BlogController {
     }
 
     @GetMapping("/getBlogs/{userId}")
-    public ResponseEntity<List<Blog>> getAllBlogsByUser(@PathVariable Long userId) throws RuntimeException {
-        List<Blog> blogs = blogService.getAllBlogsByUser(userId);
-        return new ResponseEntity<>(blogs, HttpStatus.OK);
+    public ResponseEntity<?> getAllBlogsByUser(@PathVariable Long userId) throws RuntimeException{
+        try {
+            List<Blog> blogs = blogService.getAllBlogsByUser(userId);
+            return new ResponseEntity<>(blogs, HttpStatus.OK);
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
+
+
 
     @PutMapping("/update/{blogId}")
     public ResponseEntity<Blog> updateBlog(
