@@ -3,12 +3,17 @@ package com.application.prodevblogs.controller;
 import com.application.prodevblogs.exceptions.BlogFilesNotFoundException;
 import com.application.prodevblogs.model.BlogFiles;
 import com.application.prodevblogs.service.BlogFilesService;
+import com.application.prodevblogs.service.serviceImpl.FtpServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -16,8 +21,10 @@ import java.util.List;
 public class BlogFilesController {
     
     private final BlogFilesService blogFilesService;
+    private FtpServiceImpl ftpService;
     @Autowired
-    public BlogFilesController(BlogFilesService blogFilesService) {
+    public BlogFilesController(BlogFilesService blogFilesService,FtpServiceImpl ftpService) {
+        this.ftpService=ftpService;
         this.blogFilesService = blogFilesService;
     }
 
@@ -48,14 +55,33 @@ public class BlogFilesController {
     }
 
 
-    @PutMapping("/update/{BlogFileId}")
-    public ResponseEntity<BlogFiles> updateBlogFiles(
-            @PathVariable Long BlogFileId, @RequestBody BlogFiles blogFiles) throws RuntimeException, BlogFilesNotFoundException {
-        BlogFiles updatedBlogFiles = blogFilesService.updateBlogFiles(BlogFileId, blogFiles);
-        return new ResponseEntity<>(updatedBlogFiles, HttpStatus.OK);
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
+        try {
+            return new ResponseEntity<>(ftpService.saveFile(file),HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.FAILED_DEPENDENCY);
+        }
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<?> getList(){
+        try {
+            return new ResponseEntity<>(ftpService.getAllList(),HttpStatus.FOUND);
+        } catch (IOException e) {
+            return  new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/download/{file}")
+    public ResponseEntity<?> getFile(@PathVariable String file){
+        try {
+            ftpService.getFile(file);
+            return ResponseEntity.ok("ok");
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
+        }
 
+    }
     @DeleteMapping("/delete/{BlogFileId}")
     public ResponseEntity<Void> deleteBlogFiles(@PathVariable Long BlogFileId) throws RuntimeException, BlogFilesNotFoundException {
         blogFilesService.deleteBlogFiles(BlogFileId);
