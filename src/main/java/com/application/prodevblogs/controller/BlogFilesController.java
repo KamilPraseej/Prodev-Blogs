@@ -72,6 +72,15 @@ public class BlogFilesController {
             return  new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/download")
+    public ResponseEntity<?> getDownload(@RequestParam String path){
+        try {
+            return ResponseEntity.ok(ftpService.getFile(path));
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
+        }
+
+    }
     @GetMapping("/download/{file}")
     public ResponseEntity<?> getFile(@PathVariable String file){
         try {

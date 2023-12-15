@@ -1,25 +1,22 @@
 package com.application.prodevblogs.service.serviceImpl;
 
+import com.application.prodevblogs.model.BlogFiles;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.file.FileHeaders;
-import org.springframework.integration.ftp.dsl.Ftp;
-import org.springframework.integration.ftp.session.DefaultFtpSessionFactory;
-import org.springframework.integration.ftp.session.FtpRemoteFileTemplate;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.integration.file.remote.InputStreamCallback;
+import org.springframework.integration.ftp.session.FtpRemoteFileTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.StringTokenizer;
 
 @Service
 public class FtpServiceImpl {
@@ -33,13 +30,17 @@ public class FtpServiceImpl {
         System.out.println(ftpRemoteFileTemplate.getSession().test());
     }
 
-    public String saveFile(MultipartFile file) throws Exception {
+    public BlogFiles saveFile(MultipartFile file) throws Exception {
         try {
         boolean success = false;
        FTPFile[] ftp = ftpRemoteFileTemplate.list("Desktop/");
             Arrays.asList(ftp).stream().forEach(ftpFile -> System.out.println(ftpFile.getName()));
             ftpRemoteFileTemplate.execute(e->{e.write(file.getInputStream(),"data/"+file.getOriginalFilename()); return null;});
-            return file.getOriginalFilename();
+            BlogFiles blogFiles=new BlogFiles();
+            blogFiles.setPath(file.getOriginalFilename());
+            blogFiles.setSize(file.getSize());
+            System.out.println(file.getSize());
+            return blogFiles;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -49,9 +50,22 @@ public class FtpServiceImpl {
        return  List.of(ftpRemoteFileTemplate.getSession().listNames(""));
     }
 
-    public MultipartFile getFile(String file) throws IOException {
-//        ftpRemoteFileTemplate.getSession().read(file);
-//      System.out.println(ftpRemoteFileTemplate.getSession().read(file,new FileOutputStream()));
-        return null;
+    public File getFile(String file) throws IOException {
+        StringTokenizer stringTokenizer=new StringTokenizer(file,".");
+        File temp=File.createTempFile(stringTokenizer.nextToken(),stringTokenizer.nextToken());
+        ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+        ftpRemoteFileTemplate.get(file, new InputStreamCallback() {
+            @Override
+            public void doWithInputStream(InputStream stream) throws IOException {
+                FileCopyUtils.copy(stream,byteArrayOutputStream);
+                FileUtils.copyFile(temp,byteArrayOutputStream);
+            }
+        });
+        System.out.println(temp.isFile());
+        System.out.println(temp.toString());
+        Resource resource = new FileSystemResource(temp);
+
+//        MultipartFile multipartFile=new CommonsMultipartFile()
+        return temp;
     }
 }
