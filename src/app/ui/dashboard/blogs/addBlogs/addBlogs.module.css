@@ -7,13 +7,14 @@
   }
   
   .AddBlogForm {
-    width: 50%;
+    color: red;
+    width: 70%;
     margin: 0 auto;
-    padding: 20px;
+    padding: 40px;
     border: solid 3px #022548;
-    border-radius: 10% 5% 10% 5%;
+    border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: #eae7e7;
+    /* background-color: #353434; */
   }
   
   .formContent {
@@ -37,12 +38,13 @@
   }
   
   .button {
-    background-color: #1d0f8c;
+    background: linear-gradient(#4976B4,#9B32A3);
     color: #fff;
     padding: 12px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    /* margin-left: 30px; */
 
   }
   

@@ -47,10 +47,13 @@ const BlogList = () => {
                   <h2>{blog.title}</h2>
                 </div>
                 <div className={styles.container}>
-                  <p>{blog.content}</p>
+                <h4> Category : {blog.category.category}</h4>
                   {/* <a href={blog.url} className="read-more" target="_blank" rel="noopener noreferrer">
                     Read More
                   </a> */}
+                </div>
+                <div>
+                  <h4>Author : {blog.userProfile.firstName} { blog.userProfile.lastName}</h4>
                 </div>
               </div>
             </a>

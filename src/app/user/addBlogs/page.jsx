@@ -1,161 +1,146 @@
-// "use client";
-// import { useRouter } from "next/navigation";
-// import { useState } from "react";
-// import "./addblog.css";
-
-// const PostForm = () => {
-//   const router = useRouter()
-
-//   const [blog, setBlog] = useState({
-//         imageUrl : '',
-//         title : '',
-//         date : '',
-//         category :'',
-//         content : '',
-//         userProfile: {
-//           userId : '',
-//         },
-//   });
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setBlog((prevBlog) => ({
-//       ...prevBlog,
-//       [name]: value,
-//     }));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     try {
-//       const response = await fetch('http://localhost:8282/api/blogs/add', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify(blog),
-//       });
-
-//       if (response) {
-//         console.log('Blog submitted successfully');
-//         // Redirect or perform other actions after successful submission
-//         router.push('/admin/dashboard'); // Replace with your desired route
-//       } else {
-//         console.error('Failed to submit blog');
-//       }
-//     } catch (error) {
-//       console.error('Error submitting blog:', error);
-//     }
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-
-//       <label htmlFor="imageUrl">Image URL:</label>
-
-//       <input
-//         type="text"
-//         id="imageUrl"
-//         name="imageUrl"
-//         value={blog.imageUrl}
-//         onChange={handleChange}
-//       />
-//       <br />
-//       <label htmlFor="title">Title:</label>
-
-//       <input
-//         type="text"
-//         id="title"
-//         name="title"
-//         value={blog.title}
-//         onChange={handleChange}
-//       />
-//       <br />
-
-// <label htmlFor="date">Date:</label>
-// <input
-//   type="date"
-//   id="date"
-//   name="date"
-//   value={blog.date}
-//   onChange={handleChange}
-// />
-// <br />
-
-//       <label htmlFor="category">Category:</label>
-
-//       <input
-//         type="text"
-//         id="category"
-//         name="category"
-//         value={blog.category}
-//         onChange={handleChange}
-//       />
-//       <br />
-
-//       <label htmlFor="content">Content:</label>
-//       <textarea
-//         id="content"
-//         name="content"
-//         value={blog.content}
-//         onChange={handleChange}
-//       />
-//       <br />
-//       <button type="submit">Submit</button>
-//     </form>
-//   );
-// };
-
-// export default PostForm;
-
-//
-//
-//
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import "./addblog.css";
+import React, { useState } from "react";
+import styles from "../../ui/dashboard/blogs/addBlogs/addBlogs.module.css";
+import { userId } from "../../constants/constant";
 
-const PostForm = () => {
+const AddBlogForm = () => {
   const router = useRouter();
+  const id = userId;
+  const baseUrl = 'http://localhost:8282/api'
 
   const [blog, setBlog] = useState({
-    // imageUrl : '',
     title: "",
     category: "",
     content: "",
     imageUrl: "",
-    fileInput:[],
     userProfile: {
-      userId: 1,
+      userId: id,
     },
   });
 
+  const [fileUpload, setFileUpload] = useState({
+    file: null,
+  });
+
+  const [isFileUploading, setIsFileUploading] = useState(false);
+  const [submitButton, setSubmitButton] = useState(false);
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setBlog((prevBlog) => ({
-      ...prevBlog,
-      [name]: value,
-    }));
+    const { name, value, files } = e.target;
+
+    if (name === "file") {
+      setFileUpload(() => ({
+        [name]: files[0],
+      }));
+    } else {
+      setBlog((prevBlog) => ({
+        ...prevBlog,
+        [name]: value,
+      }));
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // const handleFileUpload = async () => {
+  //   setIsFileUploading(true);
 
+  //   const formData = new FormData();
+  //   formData.append("file", fileUpload.file);
+
+  //   try {
+  //     const response = await fetch("http://localhost:8282/api/blogFiles/upload", {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       console.log("File uploaded successfully:", data);
+
+  //       setBlog((prevBlog) => ({
+  //         ...prevBlog,
+  //         blogFiles: data,
+  //       }));
+
+  //       return true;
+  //     } else {
+  //       console.error("Failed to upload file");
+  //       return false;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error uploading file:", error);
+  //     return false;
+  //   } finally {
+  //     setIsFileUploading(false);
+  //   }
+  // };
+
+  const handleFileUpload = async () => {
+    setIsFileUploading(true);
+  
+    // Fetch the user's available size
     try {
-      const response = await fetch("http://localhost:8282/api/blogs/add", {
+      
+      const userResponse = await fetch(`${baseUrl}/user/${id}`);
+      const userData = await userResponse.json();
+  
+      const userAvailableSize = userData.sizeAvailable;
+  
+      // Check if the file size is within the available size limit
+      if (fileUpload.file.size <= userAvailableSize) {
+        const formData = new FormData();
+        formData.append("file", fileUpload.file);
+  
+        try {
+          const response = await fetch(`${baseUrl}/blogFiles/upload`, {
+            method: "POST",
+            body: formData,
+          });
+  
+          if (response.ok) {
+            const data = await response.json();
+            console.log("File uploaded successfully:", data);
+  
+            setBlog((prevBlog) => ({
+              ...prevBlog,
+              blogFiles: data,
+            }));
+  
+            return true;
+          } else {
+            console.error("Failed to upload file");
+            return false;
+          }
+        } catch (error) {
+          console.error("Error uploading file:", error);
+          return false;
+        }
+      } else {
+        console.error("File size exceeds available size limit");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return false;
+    } finally {
+      setIsFileUploading(false);
+    };
+  };
+  
+
+  const handleSendBlogData = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/blogs/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(blog),
       });
-      console.log(blog)
-      if (response) {
+
+      if (response.ok) {
         console.log("Blog submitted successfully");
-        // Redirect or perform other actions after successful submission
-        router.push("/user/viewUserBlogs"); // Replace with your desired route
+        router.push("/admin/dashboard/blogs");
       } else {
         console.error("Failed to submit blog");
       }
@@ -164,73 +149,105 @@ const PostForm = () => {
     }
   };
 
+  const handleUploadAndSubmit = async () => {
+    const fileUploadSuccess = await handleFileUpload();
+
+    if (fileUploadSuccess) {
+      setSubmitButton(true);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
-      {/* <label htmlFor="imageUrl">Image URL:</label>
+    <div className={styles.mainPage}>
+      <div className={styles.AddBlogForm}>
+        <div className={styles.formContent}>
+          <form>
+          <label className={styles.label} htmlFor="blogTitle">
+              Title:
+            </label>
+            <input
+              className={styles.input}
+              type="text"
+              id="blogTitle"
+              name="title"
+              value={blog.title}
+              onChange={handleChange}
+              required
+            />
+            <br />
+            <br />
 
-      <input
-        type="text"
-        id="imageUrl"
-        name="imageUrl"
-        value={blog.imageUrl}
-        onChange={handleChange}
-      />
-      <br /> */}
+            <label className={styles.label} htmlFor="category">
+              Category:
+            </label>
+            <input
+              className={styles.input}
+              type="text"
+              id="category"
+              name="category"
+              value={blog.category}
+              onChange={handleChange}
+              required
+            />
+            <br />
+            <br />
 
-      <label htmlFor="blogTitle">Title:</label>
-      <input
-        type="text"
-        id="blogTitle"
-        name="title"
-        value={blog.title}
-        onChange={handleChange}
-        required
-      />
-      <br />
-      <label htmlFor="category">Category:</label>
-      <input
-        type="text"
-        id="category"
-        name="category"
-        value={blog.category}
-        onChange={handleChange}
-        required
-      />
-      <br />
+            <label className={styles.label} htmlFor="blogContent">
+              Content:
+            </label>
+            <textarea
+              className={styles.input}
+              id="blogContent"
+              name="content"
+              value={blog.content}
+              onChange={handleChange}
+              required
+            />
+            <br />
+            <br />
 
-      <label htmlFor="blogContent">Content:</label>
-      <textarea
-        id="blogContent"
-        name="content"
-        value={blog.content}
-        onChange={handleChange}
-        rows="6"
-        required
-      ></textarea>
-      <br />
+            <label className={styles.label} htmlFor="blogTags">ImageUrl:</label>
+            <input className={styles.input}
+              type="text"
+              id="blogTags"
+              name="imageUrl"
+              value={blog.imageUrl}
+              onChange={handleChange}
+              required
+            />
+            <br />
+            <br />
+            <label className={styles.label} htmlFor="file">Choose a file:</label>
+            <input
+              type="file"
+              id="file"
+              name="file"
+              onChange={handleChange}
+            />
+            <button
+              className={styles.button}
+              type="button"
+              onClick={handleUploadAndSubmit}
+              disabled={isFileUploading || submitButton}
+            >
+              {isFileUploading ? "Uploading..." : "Upload File"}
+            </button>
+            <br />
+            <br />
 
-      <label htmlFor="blogTags">ImageUrl:</label>
-      <input
-        type="text"
-        id="blogTags"
-        name="imageUrl"
-        value={blog.imageUrl}
-        onChange={handleChange}
-      />
-      <br />
-      <label for="fileInput">Choose a file:</label>
-      <input 
-        type="file" 
-        id="fileInput" 
-        name="fileInput" 
-        value={blog.fileInput}
-        onChange={handleChange}
-      />
-      <br></br>
-      <br />
-      <button type="submit">Submit</button>
-    </form>
+            <button
+              className={styles.button}
+              type="submit"
+              onClick={handleSendBlogData}
+              disabled={!submitButton}
+            >
+              Submit Data
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default PostForm;
+export default AddBlogForm;

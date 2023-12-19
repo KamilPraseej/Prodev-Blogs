@@ -10,7 +10,7 @@
 
 .input {
     background-color: transparent;
-    border: none;
+    border: none;    
     color: var(--text);
     outline: none;
 }

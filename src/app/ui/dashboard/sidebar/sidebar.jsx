@@ -20,6 +20,11 @@ const menuItems = [
         icon: <MdSupervisedUserCircle />,
       },
       {
+        title: "My Blogs",
+        path: "/admin/dashboard/myBlogs",
+        icon: <MdSupervisedUserCircle />,
+      },
+      {
         title: "All Users",
         path: "/admin/dashboard/allUsers",
         icon: <MdShoppingBag />,
@@ -38,11 +43,12 @@ const Sidebar = () => {
   return (
     <div className={styles.container}>
       <div className={styles.user}>
-        <Image src="/download.png" alt="img" width="50" height="50" />
+        <img src="https://static.vecteezy.com/system/resources/previews/008/302/458/non_2x/eps10-orange-user-solid-icon-or-logo-in-simple-flat-trendy-modern-style-isolated-on-white-background-free-vector.jpg" 
+        alt="img" width="100" height="100" />
       </div>
       <div className={styles.userDetail}>
-        <span className={styles.userName}>jalagam vinodh</span>
-        <span className={styles.title}>devloper</span>
+      <span className={styles.userName}>Kamil Praseej</span>
+        <span className={styles.title}>Developer</span>
       </div>
       <ul className={styles.list}>
         {menuItems.map((cat) => (

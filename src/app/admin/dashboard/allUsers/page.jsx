@@ -1,11 +1,13 @@
 'use client'
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "../../../ui/dashboard/allUsers/allUsers.module.css";
 import Search from "../../../ui/dashboard/search/search";
 import Pagination from "../../../ui/dashboard/pagination/pagination";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+
+const bytesToMegabytes = (bytes) => {
+  return (bytes / (1024 * 1024)).toFixed(2);
+};
 
 const Page = () => {
   const [users, setUsers] = useState([]);
@@ -44,10 +46,6 @@ const Page = () => {
     }
   };
 
-  const handleView = (userId) => {
-    localStorage.setItem('userId', userId)
-    router.push(`/admin/dashboard/viewUsers`);
-  };
 
   return (
     <div className={styles.container}>
@@ -57,20 +55,21 @@ const Page = () => {
       <table className={styles.table}>
         <thead>
           <tr>
-          <td>Image</td>
+            <td>Image</td>
             <td>First Name</td>
             <td>Last Name</td>
             <td>Email Id</td>
-            
+            <td>Available Memory (MB)</td>
+            <td>Actions</td>
           </tr>
         </thead>
         <tbody>
           {users.map((user) => (
             <tr key={user.userId}>
-               <td>
+              <td>
                 <img
                   src={user.imageUrl}
-                  alt="Blog Image"
+                  alt="User Image"
                   height={40}
                   className={styles.userImage}
                 />
@@ -78,7 +77,7 @@ const Page = () => {
               <td>{user.firstName}</td>
               <td>{user.lastName}</td>
               <td>{user.emailId}</td>
-             
+              <td>{bytesToMegabytes(user.sizeAvailable)} MB</td>
               <td>
                 <button
                   className={`${styles.button} ${styles.delete}`}
@@ -86,13 +85,12 @@ const Page = () => {
                 >
                   Delete
                 </button>
-             
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <Pagination></Pagination>
+      <Pagination />
     </div>
   );
 };

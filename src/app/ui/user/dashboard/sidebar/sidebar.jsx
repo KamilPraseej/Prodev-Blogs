@@ -17,13 +17,8 @@ const menuItems = [
     list: [
       {
         title: "Dashboard",
-        path: "/user",
-        icon: <MdDashboard />,
-      },
-      {
-        title: "All Blogs",
         path: "/user/viewAllBlogs",
-        icon: <MdList />,
+        icon: <MdDashboard />,
       },
       {
         title: "My Blogs",
@@ -47,8 +42,8 @@ const Sidebar = () => {
         <Image src="/download.png" alt="img" width="50" height="50" />
       </div>
       <div className={styles.userDetail}>
-        <span className={styles.userName}>jalagam vinodh</span>
-        <span className={styles.title}>devloper</span>
+        <span className={styles.userName}>Kamil Praseej</span>
+        <span className={styles.title}>Developer</span>
       </div>
       <ul className={styles.list}>
         {menuItems.map((cat) => (
