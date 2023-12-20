@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -26,10 +27,11 @@ public class BlogController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> createBlog(@RequestBody Blog blog) throws RuntimeException {
+    public ResponseEntity<String> createBlog(@RequestBody Blog blog) {
         try {
-            // Print the incoming JSON data
-            System.out.println("Received JSON data: " + blog.toString()+""+blog.getBlogFiles());
+            // Split content into paragraphs and store them
+            List<String> paragraphs = Arrays.asList(blog.getContent().split("\n"));
+            blog.setContent(String.join("\n", paragraphs));
 
             // Your existing logic to create the blog
             Blog createdBlog = blogService.createBlog(blog);
@@ -40,18 +42,27 @@ public class BlogController {
         }
     }
 
-
     @GetMapping("/{blogId}")
-    public ResponseEntity<Blog> getBlog(
-            @PathVariable Long blogId) throws RuntimeException {
+    public ResponseEntity<Blog> getBlog(@PathVariable Long blogId) {
         Blog blog = blogService.getBlogById(blogId);
-        return new ResponseEntity<>(blog, HttpStatus.OK);
+        if (blog != null) {
+            // Concatenate paragraphs when returning a single blog
+            List<String> paragraphs = Arrays.asList(blog.getContent().split("\n"));
+            blog.setContent(String.join("\n", paragraphs));
+            return new ResponseEntity<>(blog, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-
     @GetMapping("/getBlogs")
-    public ResponseEntity<List<Blog>> getAllBlogs() throws RuntimeException {
+    public ResponseEntity<List<Blog>> getAllBlogs() {
         List<Blog> blogs = blogService.getAllBlogs();
+        // Concatenate paragraphs when returning all blogs
+        blogs.forEach(blog -> {
+            List<String> paragraphs = Arrays.asList(blog.getContent().split("\n"));
+            blog.setContent(String.join("\n", paragraphs));
+        });
         return new ResponseEntity<>(blogs, HttpStatus.OK);
     }
 
