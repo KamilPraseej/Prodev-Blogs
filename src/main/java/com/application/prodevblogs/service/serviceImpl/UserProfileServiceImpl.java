@@ -25,6 +25,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     public UserProfile createUserProfile(UserProfile userProfile) {
         try{
             if(!userRepository.existsByEmailId(userProfile.getEmailId())){
+                userProfile.setSizeAvailable(1024L * 1024 * 1024);
                 return userRepository.save(userProfile);}
             else {
                 throw new UserAlreadyExistsException("The Email is already exists");
@@ -48,6 +49,18 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     }
 
+    @Override
+    public UserProfile getUserProfileByEmailId(String email) {
+        try {
+            UserProfile userProfile = userRepository.findByEmailId(email);
+            if (userProfile == null) {
+                throw new UserProfileNotFoundException("User with Email " + email + " not found");
+            }
+            return userProfile;
+        }catch (UserProfileNotFoundException e) {
+            throw new RuntimeException("User with Email " + email + " not found",e);
+        }
+    }
 
     @Override
     public List<UserProfile> getAllUserProfiles() {
@@ -89,5 +102,7 @@ public class UserProfileServiceImpl implements UserProfileService {
             throw new RuntimeException("Error deleting user profile", e);
         }
     }
+
+
 
 }

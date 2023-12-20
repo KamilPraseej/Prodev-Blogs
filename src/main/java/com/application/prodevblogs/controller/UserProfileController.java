@@ -1,7 +1,6 @@
 package com.application.prodevblogs.controller;
 
 import com.application.prodevblogs.exceptions.UserProfileNotFoundException;
-import com.application.prodevblogs.model.Blog;
 import com.application.prodevblogs.model.UserProfile;
 import com.application.prodevblogs.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ public class UserProfileController {
         }
     }
 
-    
+
     @GetMapping("/{userProfileId}")
     public ResponseEntity<?> getUserProfile(
             @PathVariable Long userProfileId) throws RuntimeException {
@@ -45,6 +44,16 @@ public class UserProfileController {
         }
     }
 
+    @GetMapping("/getUser/{email:.+}")
+    public ResponseEntity<?> getUserProfile(
+            @PathVariable String  email) throws RuntimeException {
+        try{
+            UserProfile userProfile = userProfileService.getUserProfileByEmailId(email);
+            return new ResponseEntity<>(userProfile, HttpStatus.OK);
+        }catch (Exception | UserProfileNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
     
     @GetMapping("/getUserProfiles")
     public ResponseEntity<List<UserProfile>> getAllUserProfiles() throws RuntimeException {

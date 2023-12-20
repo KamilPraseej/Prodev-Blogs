@@ -2,13 +2,15 @@ package com.application.prodevblogs.controller;
 
 
 import com.application.prodevblogs.exceptions.BlogNotFoundException;
-import com.application.prodevblogs.exceptions.UserProfileNotFoundException;
 import com.application.prodevblogs.model.Blog;
+import com.application.prodevblogs.model.BlogFiles;
+import com.application.prodevblogs.service.BlogFilesService;
 import com.application.prodevblogs.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -24,12 +26,16 @@ public class BlogController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> createBlog(
-            @RequestBody Blog blog) throws RuntimeException {
-        try{
+    public ResponseEntity<String> createBlog(@RequestBody Blog blog) throws RuntimeException {
+        try {
+            // Print the incoming JSON data
+            System.out.println("Received JSON data: " + blog.toString()+""+blog.getBlogFiles());
+
+            // Your existing logic to create the blog
             Blog createdBlog = blogService.createBlog(blog);
+
             return new ResponseEntity<>("Blog Created Successfully", HttpStatus.CREATED);
-        }catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
@@ -59,8 +65,6 @@ public class BlogController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
-
-
 
     @PutMapping("/update/{blogId}")
     public ResponseEntity<Blog> updateBlog(

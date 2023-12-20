@@ -9,9 +9,11 @@ import java.util.List;
 @Service
 public interface UserProfileService {
     UserProfile createUserProfile(UserProfile userProfile) throws RuntimeException ;
-    UserProfile getUserProfileById(Long userProfileId) throws UserProfileNotFoundException;
-    List<UserProfile> getAllUserProfiles() ;
+    UserProfile getUserProfileById(Long userProfileId) throws UserProfileNotFoundException ;
+    UserProfile getUserProfileByEmailId(String email) throws UserProfileNotFoundException;
+    List<UserProfile> getAllUserProfiles()  ;
     UserProfile updateUserProfile(Long userProfileId, UserProfile userProfile) throws UserProfileNotFoundException;
     void deleteUserProfile(Long userProfileId) throws UserProfileNotFoundException;
+
 
 }

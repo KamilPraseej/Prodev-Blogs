@@ -1,10 +1,7 @@
 package com.application.prodevblogs.service.serviceImpl;
 
 
-
 import com.application.prodevblogs.exceptions.BlogFilesNotFoundException;
-import com.application.prodevblogs.exceptions.BlogNotFoundException;
-import com.application.prodevblogs.model.Blog;
 import com.application.prodevblogs.model.BlogFiles;
 import com.application.prodevblogs.repository.BlogFilesRepository;
 import com.application.prodevblogs.service.BlogFilesService;

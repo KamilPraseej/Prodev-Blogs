@@ -1,6 +1,7 @@
 package com.application.prodevblogs.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sun.istack.NotNull;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @AllArgsConstructor
 public class Blog {
 
@@ -18,11 +20,21 @@ public class Blog {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long blogId;
     private String imageUrl;
+    @NotNull
     private String title;
+    @NotNull
     private LocalDate date;
-    private String category;
+
+    @NotNull
+    @ManyToOne
+    private Category category;
+
+    @Column(length = 10000)
     private String content;
 
-    @ManyToOne(cascade = {CascadeType.REFRESH,CascadeType.DETACH})
+    @ManyToOne
     private UserProfile userProfile;
+
+    @OneToOne
+    private  BlogFiles blogFiles;
 }

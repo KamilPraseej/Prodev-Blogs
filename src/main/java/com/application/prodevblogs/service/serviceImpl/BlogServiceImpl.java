@@ -4,8 +4,10 @@ import com.application.prodevblogs.exceptions.BlogNotFoundException;
 import com.application.prodevblogs.exceptions.UserProfileNotFoundException;
 import com.application.prodevblogs.model.Blog;
 import com.application.prodevblogs.model.UserProfile;
+import com.application.prodevblogs.repository.BlogFilesRepository;
 import com.application.prodevblogs.repository.BlogRepository;
 import com.application.prodevblogs.repository.UserProfileRepository;
+import com.application.prodevblogs.service.BlogFilesService;
 import com.application.prodevblogs.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,12 +18,14 @@ import java.util.Optional;
 
 @Service
 public class BlogServiceImpl implements BlogService {
-    
+
     private final BlogRepository blogRepository;
     private final UserProfileRepository userProfileRepository;
+    private final BlogFilesRepository blogFilesRepository;
     @Autowired
-    public BlogServiceImpl(BlogRepository blogRepository, UserProfileRepository userProfileRepository) {
+    public BlogServiceImpl(BlogRepository blogRepository,BlogFilesRepository blogFilesRepository, UserProfileRepository userProfileRepository) {
         this.blogRepository = blogRepository;
+        this.blogFilesRepository=blogFilesRepository;
         this.userProfileRepository = userProfileRepository;
     }
 
@@ -30,6 +34,8 @@ public class BlogServiceImpl implements BlogService {
         try{
             blog.setDate(LocalDate.now());
             blog.setUserProfile(userProfileRepository.findById(blog.getUserProfile().getUserId()).get());
+            blog.setBlogFiles(blogFilesRepository.save(blog.getBlogFiles()));
+            blog.getUserProfile().setSizeAvailable(blog.getUserProfile().getSizeAvailable() - blog.getBlogFiles().getSize());
             return blogRepository.save(blog);
         }catch (Exception e) {
             throw new RuntimeException(e);
